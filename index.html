@@ -10,8 +10,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts: 使用 Noto Sans HK (圓潤字形) 並搭配 CSS 模擬圓體效果 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700;900&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
     
     <script>
         tailwind.config = {
@@ -32,7 +32,8 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['Noto Sans TC', 'sans-serif'],
+                        // 設定預設字體為圓潤感的字體系列
+                        sans: ['"Noto Sans HK"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
                         serif: ['Playfair Display', 'serif'],
                     }
                 }
@@ -54,14 +55,24 @@
             user-select: none;
             -webkit-user-select: none;
             overflow-x: hidden;
+            /* 強化圓體感：調整字體平滑度 */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            letter-spacing: 0.02em;
         }
         
+        /* 針對數字強化圓體視覺效果 */
+        .font-serif, #displayTotal, #modalTotal {
+            font-feature-settings: "pnum" on, "lnum" on;
+        }
+
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         input[type="number"], input[type="text"] {
             -moz-appearance: textfield;
             font-size: 16px !important;
+            font-family: inherit; /* 確保輸入框也使用圓體 */
         }
         input[type="number"]::-webkit-inner-spin-button, 
         input[type="number"]::-webkit-outer-spin-button { 
@@ -78,7 +89,7 @@
         
         .option-content {
             border: 1.5px solid transparent;
-            border-radius: 1rem;
+            border-radius: 1.25rem; /* 更圓潤的設計 */
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             background-color: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
@@ -93,16 +104,16 @@
 
         .section-container {
             background-color: white;
-            border-radius: 1.25rem;
+            border-radius: 1.5rem; /* 更圓潤的設計 */
             padding: 1.5rem;
             box-shadow: 0 4px 20px rgba(101, 79, 61, 0.04);
         }
 
         .section-title {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 900;
             color: #997656;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
             margin-bottom: 0.25rem;
         }
@@ -129,7 +140,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
+            border-radius: 1rem; /* 更圓潤的設計 */
             background-color: #fcfcf9;
             border: 1px solid #f0eee8;
         }
@@ -137,7 +148,7 @@
         .quick-addon-btn {
             white-space: nowrap;
             padding: 0.75rem 1.5rem;
-            border-radius: 2rem;
+            border-radius: 9999px; /* 全圓角按鈕 */
             font-size: 0.875rem; 
             font-weight: 600;
             background-color: white;
@@ -161,7 +172,7 @@
 
         @media (min-width: 768px) {
             #settingsPanel {
-                border-radius: 2rem 0 0 2rem;
+                border-radius: 2.5rem 0 0 2.5rem;
             }
         }
 
@@ -211,12 +222,12 @@
                         <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">款式底價設定</h3>
                     </div>
                     <div id="settingsBaseList" class="space-y-3 mb-4"></div>
-                    <div class="p-4 bg-white rounded-2xl border border-cream-100 shadow-sm space-y-3">
-                        <input type="text" id="newBaseName" placeholder="服務名稱 (如: 漸層凝膠)" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all">
+                    <div class="p-4 bg-white rounded-[1.5rem] border border-cream-100 shadow-sm space-y-3">
+                        <input type="text" id="newBaseName" placeholder="服務名稱 (如: 漸層凝膠)" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all outline-none">
                         <div class="flex gap-2">
                             <div class="relative flex-1">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cream-300 font-serif text-sm">$</span>
-                                <input type="number" id="newBasePrice" placeholder="金額" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 pl-7 focus:ring-2 focus:ring-cream-300 transition-all">
+                                <input type="number" id="newBasePrice" placeholder="金額" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 pl-7 focus:ring-2 focus:ring-cream-300 transition-all outline-none">
                             </div>
                             <button onclick="addSettingItem('base')" class="bg-cream-900 text-white w-14 rounded-xl active:scale-95 transition-all flex items-center justify-center">
                                 <i class="fa-solid fa-plus"></i>
@@ -231,8 +242,8 @@
                         <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">造型快捷鍵管理</h3>
                     </div>
                     <div id="settingsArtList" class="grid grid-cols-1 gap-2 mb-4"></div>
-                    <div class="p-4 bg-white rounded-2xl border border-cream-100 shadow-sm flex flex-col gap-3">
-                        <input type="text" id="newArtName" placeholder="造型名稱 (如: 鑽飾)" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all">
+                    <div class="p-4 bg-white rounded-[1.5rem] border border-cream-100 shadow-sm flex flex-col gap-3">
+                        <input type="text" id="newArtName" placeholder="造型名稱 (如: 鑽飾)" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all outline-none">
                         <button onclick="addSettingItem('art')" class="w-full bg-cream-900 text-white py-3.5 rounded-xl active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-2">
                             <i class="fa-solid fa-plus text-xs"></i> 新增快捷鍵
                         </button>
@@ -244,7 +255,7 @@
                         <i class="fa-solid fa-database text-cream-400 text-xs"></i>
                         <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">系統資料管理</h3>
                     </div>
-                    <button onclick="resetDefaultSettings()" class="w-full py-4 text-xs text-red-500 font-bold border border-red-100 rounded-2xl bg-red-50/50 active:bg-red-100 transition-colors">
+                    <button onclick="resetDefaultSettings()" class="w-full py-4 text-xs text-red-500 font-bold border border-red-100 rounded-[1.5rem] bg-red-50/50 active:bg-red-100 transition-colors">
                         <i class="fa-solid fa-rotate-left mr-2"></i> 恢復系統初始設定
                     </button>
                 </section>
@@ -293,7 +304,7 @@
         <section class="section-container">
             <h2 class="section-title">卸甲服務</h2>
             <div class="section-divider"></div>
-            <div class="bg-cream-50/50 rounded-2xl overflow-hidden p-1.5 flex gap-1.5 border border-cream-100">
+            <div class="bg-cream-50/50 rounded-[1.25rem] overflow-hidden p-1.5 flex gap-1.5 border border-cream-100">
                 <button onclick="setRemoval(0)" id="rm-btn-0" class="flex-1 py-3.5 text-sm font-bold rounded-xl transition-all">無</button>
                 <button onclick="setRemoval(1)" id="rm-btn-1" class="flex-1 py-3.5 text-sm font-bold rounded-xl transition-all">本店</button>
                 <button onclick="setRemoval(2)" id="rm-btn-2" class="flex-1 py-3.5 text-sm font-bold rounded-xl transition-all">他店</button>
@@ -325,7 +336,7 @@
                         <span class="text-sm font-bold text-cream-800">其他調整</span>
                         <div class="relative">
                             <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-cream-300 font-serif">$</span>
-                            <input type="number" id="adjustmentAmount" value="0" oninput="calculateTotal()" class="w-32 pl-5 pr-1 py-2 text-right text-sm border-none rounded-lg bg-cream-50/50 font-black focus:ring-0">
+                            <input type="number" id="adjustmentAmount" value="0" oninput="calculateTotal()" class="w-32 pl-5 pr-1 py-2 text-right text-sm border-none rounded-lg bg-cream-50/50 font-black focus:ring-0 outline-none">
                         </div>
                     </div>
                 </div>
@@ -344,8 +355,8 @@
                 </div>
             </div>
             <div class="flex gap-3">
-                <button onclick="copyToClipboard()" class="w-12 h-12 rounded-2xl bg-cream-50 text-cream-500 flex items-center justify-center active:scale-90 transition-all"><i class="fa-regular fa-copy text-xl"></i></button>
-                <button onclick="openDetailModal()" class="bg-cream-900 text-white px-8 h-12 rounded-2xl text-sm font-black shadow-lg shadow-cream-900/20 active:scale-95 transition-all">結帳明細</button>
+                <button onclick="copyToClipboard()" class="w-12 h-12 rounded-[1.25rem] bg-cream-50 text-cream-500 flex items-center justify-center active:scale-90 transition-all"><i class="fa-regular fa-copy text-xl"></i></button>
+                <button onclick="openDetailModal()" class="bg-cream-900 text-white px-8 h-12 rounded-[1.25rem] text-sm font-black shadow-lg shadow-cream-900/20 active:scale-95 transition-all">結帳明細</button>
             </div>
         </div>
     </footer>
@@ -353,7 +364,7 @@
     <!-- Detail Modal -->
     <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-6">
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeDetailModal()"></div>
-        <div class="bg-white rounded-[2rem] p-7 w-full max-w-sm relative shadow-2xl modal-animate">
+        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-sm relative shadow-2xl modal-animate">
             <div class="text-center mb-6">
                 <h3 class="font-serif text-lg font-bold text-cream-900 tracking-widest uppercase">SOUVENIR ATELIER</h3>
                 <div class="w-8 h-[1px] bg-cream-200 mx-auto mt-2"></div>
@@ -365,14 +376,13 @@
                     <span class="text-3xl font-serif font-bold text-cream-900">$<span id="modalTotal">0</span></span>
                 </div>
             </div>
-            <button onclick="copyToClipboard(); closeDetailModal();" class="w-full bg-cream-900 text-white py-4 rounded-2xl text-base font-bold shadow-xl active:scale-95 transition-all">複製明細並關閉</button>
+            <button onclick="copyToClipboard(); closeDetailModal();" class="w-full bg-cream-900 text-white py-4 rounded-[1.5rem] text-base font-bold shadow-xl active:scale-95 transition-all">複製明細並關閉</button>
         </div>
     </div>
 
-    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-full text-xs font-bold opacity-0 transition-all duration-300 pointer-events-none z-[60]">明細已複製到剪貼簿</div>
+    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-full text-[11px] font-bold opacity-0 transition-all duration-300 pointer-events-none z-[60]">明細已複製到剪貼簿</div>
 
     <script>
-        // 預設資料設定：已移除「格紋」
         const defaultSettings = {
             bases: [
                 { id: 'b1', name: '透明凝膠', price: 700 },
@@ -403,7 +413,7 @@
 
         function renderSettingsUI() {
             document.getElementById('settingsBaseList').innerHTML = settings.bases.map(b => `
-                <div class="flex items-center justify-between bg-white p-3.5 rounded-xl border border-cream-50 shadow-sm">
+                <div class="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-cream-50 shadow-sm">
                     <div class="flex flex-col">
                         <span class="text-sm font-bold text-cream-900">${b.name}</span>
                         <span class="text-xs text-cream-400 font-serif">$${b.price}</span>
@@ -414,7 +424,7 @@
                 </div>`).join('');
             
             document.getElementById('settingsArtList').innerHTML = settings.artPresets.map((art, idx) => `
-                <div class="flex items-center justify-between bg-white p-3.5 rounded-xl border border-cream-50 shadow-sm">
+                <div class="flex items-center justify-between bg-white p-3.5 rounded-2xl border border-cream-50 shadow-sm">
                     <span class="text-sm font-bold text-cream-800">${art}</span>
                     <button onclick="removeSettingItem('art', ${idx})" class="w-10 h-10 flex items-center justify-center text-red-300 active:text-red-500 transition-colors">
                         <i class="fa-solid fa-circle-minus text-xl"></i>
@@ -488,7 +498,7 @@
                         <span class="text-xs text-cream-300 mr-0.5 font-serif font-bold">$</span>
                         <input type="number" value="${item.price}" 
                                oninput="updateArtItemPrice(${index}, this.value)" 
-                               class="w-full bg-transparent border-none text-sm font-bold text-cream-700 focus:ring-0 text-left p-0">
+                               class="w-full bg-transparent border-none text-sm font-bold text-cream-700 focus:ring-0 text-left p-0 outline-none">
                     </div>
 
                     <div class="art-box px-1 w-[110px] shrink-0">
