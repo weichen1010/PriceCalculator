@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SOUVENIR ATELIER | 美甲預算計算機</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: {
+                            50: '#fcfcf9',
+                            100: '#f7f5f0',
+                            200: '#efe8dd',
+                            300: '#e0d1bc',
+                            400: '#d2ba9c',
+                            500: '#c4a480', 
+                            600: '#b8926e',
+                            700: '#997656',
+                            800: '#7d6149',
+                            900: '#654f3d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans TC', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sar: env(safe-area-inset-right);
+            --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+        }
+
+        body {
+            background-color: #f7f5f0;
+            color: #654f3d;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        input[type="number"] {
+            -moz-appearance: textfield;
+            font-size: 16px !important; /* 防止 iOS 自動縮放 */
+        }
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+
+        .option-item input:checked + .option-content {
+            color: #c4a480;
+            background-color: #fff;
+            border-color: #c4a480;
+            box-shadow: 0 4px 12px rgba(196, 164, 128, 0.15);
+        }
+        
+        .option-content {
+            border: 1.5px solid transparent;
+            border-radius: 1rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding-top: var(--sat);
+        }
+
+        .section-container {
+            background-color: white;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(101, 79, 61, 0.04);
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: #997656;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .section-divider {
+            border-top: 1.5px solid #f7f5f0;
+            margin: 0.75rem 0;
+        }
+
+        .art-box {
+            background-color: #fcfcf9;
+            border: 1px solid #efe8dd;
+            border-radius: 9999px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 44px; /* 稍微增加高度以配合較大字體 */
+            transition: all 0.2s ease;
+        }
+
+        .counter-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background-color: #fcfcf9;
+            border: 1px solid #f0eee8;
+        }
+
+        .quick-addon-btn {
+            white-space: nowrap;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2rem;
+            font-size: 0.875rem; /* 大一點 */
+            font-weight: 600;
+            background-color: white;
+            border: 1px solid #efe8dd;
+            color: #7d6149;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .quick-addon-btn-selected {
+            background-color: #e5e7eb !important;
+            color: #9ca3af !important;
+            border-color: #d1d5db !important;
+            opacity: 0.6;
+        }
+
+        .footer-safe-area {
+            padding-bottom: calc(1rem + var(--sab));
+        }
+
+        @keyframes modalShow {
+            from { transform: scale(0.9) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .modal-animate { animation: modalShow 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="font-sans antialiased text-base">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 glass-header border-b border-cream-100">
+        <div class="max-w-md mx-auto h-16 flex items-center justify-center px-6 relative">
+            <div class="flex items-center gap-2">
+                <h1 class="font-serif text-lg font-bold text-cream-800 tracking-[0.2em] uppercase">SOUVENIR ATELIER</h1>
+                <button onclick="toggleSettings()" class="text-cream-300 hover:text-cream-500 p-2 -mr-2">
+                    <i class="fa-solid fa-gear text-[12px]"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Settings Panel -->
+    <div id="settingsModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onclick="toggleSettings()"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-[85%] max-w-xs bg-white shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-full" id="settingsPanel">
+            <div class="p-6 border-b border-cream-50 flex items-center justify-between" style="padding-top: calc(1.5rem + var(--sat))">
+                <h2 class="font-bold text-cream-800 text-base">設定管理</h2>
+                <button onclick="toggleSettings()" class="w-8 h-8 flex items-center justify-center rounded-full bg-cream-50 text-cream-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-8 hide-scrollbar">
+                <div>
+                    <h3 class="text-[11px] font-bold text-cream-400 uppercase tracking-widest mb-4">款式底價</h3>
+                    <div id="settingsBaseList" class="space-y-2 mb-4"></div>
+                    <div class="flex flex-col gap-2 p-3 bg-cream-50 rounded-xl">
+                        <input type="text" id="newBaseName" placeholder="名稱" class="text-sm border-none rounded-lg bg-white p-2.5 focus:ring-1 focus:ring-cream-300">
+                        <div class="flex gap-2">
+                            <input type="number" id="newBasePrice" placeholder="金額" class="flex-1 text-sm border-none rounded-lg bg-white p-2.5 focus:ring-1 focus:ring-cream-300">
+                            <button onclick="addSettingItem('base')" class="bg-cream-800 text-white px-4 rounded-lg"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pt-6 border-t border-cream-50">
+                    <h3 class="text-[11px] font-bold text-cream-400 uppercase tracking-widest mb-4">造型快捷鍵</h3>
+                    <div id="settingsArtList" class="space-y-2 mb-4"></div>
+                    <div class="flex gap-2 p-3 bg-cream-50 rounded-xl">
+                        <input type="text" id="newArtName" placeholder="名稱" class="flex-1 text-sm border-none rounded-lg bg-white p-2.5 focus:ring-1 focus:ring-cream-300">
+                        <button onclick="addSettingItem('art')" class="bg-cream-800 text-white px-4 rounded-lg"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+                <div class="pt-6 border-t border-cream-50 pb-12">
+                    <button onclick="resetDefaultSettings()" class="w-full py-3 text-sm text-red-400 font-medium border border-red-50 rounded-xl bg-red-50/30">恢復系統預設值</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pt-24 px-5 max-w-md mx-auto space-y-6 pb-40">
+        
+        <!-- 款式底價 -->
+        <section class="section-container">
+            <h2 class="section-title">款式底價</h2>
+            <div class="section-divider"></div>
+            <div id="baseOptionsContainer" class="flex flex-col gap-3"></div>
+        </section>
+
+        <!-- 固定加購 -->
+        <section class="section-container">
+            <h2 class="section-title">固定加購 ($50/指)</h2>
+            <div class="section-divider"></div>
+            <div class="divide-y divide-cream-50">
+                <div class="flex items-center justify-between py-4">
+                    <span class="text-sm font-bold text-cream-800">補甲</span>
+                    <div class="flex items-center gap-4">
+                        <button onclick="updateFixedAddon('repair', -1)" class="counter-btn text-cream-400 active:bg-cream-100"><i class="fa-solid fa-minus text-xs"></i></button>
+                        <span id="count-repair" class="w-6 text-center font-bold text-cream-900 text-sm">0</span>
+                        <button onclick="updateFixedAddon('repair', 1)" class="counter-btn text-cream-400 active:bg-cream-100"><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between py-4">
+                    <span class="text-sm font-bold text-cream-800">跳色</span>
+                    <div class="flex items-center gap-4">
+                        <button onclick="updateFixedAddon('colorJump', -1)" class="counter-btn text-cream-400 active:bg-cream-100"><i class="fa-solid fa-minus text-xs"></i></button>
+                        <span id="count-colorJump" class="w-6 text-center font-bold text-cream-900 text-sm">0</span>
+                        <button onclick="updateFixedAddon('colorJump', 1)" class="counter-btn text-cream-400 active:bg-cream-100"><i class="fa-solid fa-plus text-xs"></i></button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 進階造型 -->
+        <section class="section-container">
+            <h2 class="section-title">進階造型</h2>
+            <div id="quickOptionsBar" class="flex overflow-x-auto gap-2 pb-3 pt-2 hide-scrollbar">
+                <!-- 由 JS 生成 -->
+            </div>
+            <div class="section-divider"></div>
+            <div id="artList" class="space-y-4">
+                <!-- 由 JS 生成 -->
+            </div>
+        </section>
+
+        <!-- 卸甲服務 -->
+        <section class="section-container">
+            <h2 class="section-title">卸甲服務</h2>
+            <div class="section-divider"></div>
+            <div class="bg-cream-50/50 rounded-2xl overflow-hidden p-1 flex gap-1">
+                <button onclick="setRemoval(0)" id="rm-btn-0" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all">無</button>
+                <button onclick="setRemoval(1)" id="rm-btn-1" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all">本店</button>
+                <button onclick="setRemoval(2)" id="rm-btn-2" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all">他店</button>
+            </div>
+        </section>
+
+        <!-- 折扣調整 -->
+        <section class="section-container">
+            <h2 class="section-title">折扣調整</h2>
+            <div class="section-divider"></div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <label class="option-item relative cursor-pointer block">
+                        <input type="checkbox" id="check-birthday" class="sr-only" onchange="toggleDiscount('birthday')">
+                        <div class="option-content relative flex items-center justify-between px-3 py-4 transition-all">
+                            <span class="text-sm font-bold text-cream-800">生日 9 折</span>
+                            <i class="fa-solid fa-cake-candles text-xs text-cream-300"></i>
+                        </div>
+                    </label>
+                    <label class="option-item relative cursor-pointer block">
+                        <input type="checkbox" id="check-share" class="sr-only" onchange="toggleDiscount('share')">
+                        <div class="option-content relative flex items-center justify-between px-3 py-4 transition-all">
+                            <span class="text-sm font-bold text-cream-800">分享折 $100</span>
+                            <i class="fa-solid fa-share-nodes text-xs text-cream-300"></i>
+                        </div>
+                    </label>
+                </div>
+                <div class="option-item">
+                    <div class="option-content flex items-center justify-between px-4 py-4">
+                        <span class="text-sm font-bold text-cream-800">其他調整</span>
+                        <div class="relative">
+                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-cream-300 font-serif">$</span>
+                            <input type="number" id="adjustmentAmount" value="0" oninput="calculateTotal()" class="w-28 pl-5 pr-1 py-1.5 text-right text-sm border-none rounded-lg bg-cream-50 font-bold focus:ring-0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Bar -->
+    <footer class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-cream-100 z-30 footer-safe-area">
+        <div class="max-w-md mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+                <span class="text-[10px] text-cream-400 uppercase tracking-tighter font-black">ESTIMATED TOTAL</span>
+                <div class="flex items-baseline">
+                    <span class="text-base font-serif text-cream-500 mr-0.5">$</span>
+                    <span class="text-3xl font-serif font-black text-cream-900 leading-none" id="displayTotal">0</span>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="copyToClipboard()" class="w-12 h-12 rounded-2xl bg-cream-50 text-cream-500 flex items-center justify-center active:scale-90 transition-all"><i class="fa-regular fa-copy text-xl"></i></button>
+                <button onclick="openDetailModal()" class="bg-cream-900 text-white px-8 h-12 rounded-2xl text-sm font-black shadow-lg shadow-cream-900/20 active:scale-95 transition-all">結帳明細</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeDetailModal()"></div>
+        <div class="bg-white rounded-[2rem] p-7 w-full max-w-sm relative shadow-2xl modal-animate">
+            <div class="text-center mb-6">
+                <h3 class="font-serif text-lg font-bold text-cream-900 tracking-widest">SOUVENIR ATELIER</h3>
+                <div class="w-8 h-[1px] bg-cream-200 mx-auto mt-2"></div>
+            </div>
+            <div id="receiptContent" class="space-y-4 mb-8 text-sm max-h-72 overflow-y-auto pr-1 hide-scrollbar"></div>
+            <div class="border-t border-dashed border-cream-100 pt-5 mb-8">
+                <div class="flex justify-between items-baseline">
+                    <span class="text-[11px] text-cream-400 font-bold tracking-widest uppercase">Total Amount</span>
+                    <span class="text-3xl font-serif font-bold text-cream-900">$<span id="modalTotal">0</span></span>
+                </div>
+            </div>
+            <button onclick="copyToClipboard(); closeDetailModal();" class="w-full bg-cream-900 text-white py-4 rounded-2xl text-base font-bold shadow-xl active:scale-95 transition-all">複製明細並關閉</button>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-28 left-1/2 -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-full text-xs font-bold opacity-0 transition-all duration-300 pointer-events-none z-[60]">明細已複製到剪貼簿</div>
+
+    <script>
+        const defaultSettings = {
+            bases: [
+                { id: 'b1', name: '透明凝膠', price: 700 },
+                { id: 'b2', name: '單色凝膠', price: 1000 },
+                { id: 'b3', name: '特殊凝膠、貓眼', price: 1400 },
+                { id: 'b4', name: 'A. 平面造型、簡單暈染', price: 1500 },
+                { id: 'b5', name: 'B. 3種以上異素材、鏡面、法式', price: 1600 },
+                { id: 'b6', name: 'C. 5種以上異素材', price: 1700 }
+            ],
+            artPresets: ['鏡面粉', '延甲', '貼紙', '立體', '格紋'],
+            removal: { shop: 250, other: 300 }
+        };
+
+        let settings = JSON.parse(localStorage.getItem('nailSettings_v7')) || JSON.parse(JSON.stringify(defaultSettings));
+        let state = { 
+            selectedBaseId: null, 
+            fixedAddons: { repair: 0, colorJump: 0 }, 
+            artItems: [], 
+            removalType: 0,
+            discounts: { birthday: false, share: false }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSettingsUI();
+            renderMainUI();
+            setRemoval(0);
+        });
+
+        function renderSettingsUI() {
+            document.getElementById('settingsBaseList').innerHTML = settings.bases.map(b => `
+                <div class="flex items-center justify-between text-xs bg-cream-50/50 p-3 rounded-xl">
+                    <span class="text-cream-800 font-bold pr-2">${b.name} ($${b.price})</span>
+                    <button onclick="removeSettingItem('base', '${b.id}')" class="text-red-300 p-1 flex-shrink-0"><i class="fa-solid fa-minus-circle"></i></button>
+                </div>`).join('');
+            document.getElementById('settingsArtList').innerHTML = settings.artPresets.map((art, idx) => `
+                <div class="flex items-center justify-between text-xs bg-cream-50/50 p-3 rounded-xl">
+                    <span class="text-cream-800 font-bold">${art}</span>
+                    <button onclick="removeSettingItem('art', ${idx})" class="text-red-300 p-1"><i class="fa-solid fa-minus-circle"></i></button>
+                </div>`).join('');
+        }
+
+        function renderMainUI() {
+            const baseContainer = document.getElementById('baseOptionsContainer');
+            let html = '<div class="grid grid-cols-2 gap-3">';
+            settings.bases.slice(0, 2).forEach(base => {
+                html += `
+                <label class="option-item relative cursor-pointer">
+                    <input type="radio" name="basePrice" value="${base.id}" class="sr-only" 
+                        onclick="updateBase('${base.id}')" ${state.selectedBaseId === base.id ? 'checked' : ''}>
+                    <div class="option-content flex items-center justify-between px-3 py-5">
+                        <span class="text-sm font-bold text-cream-800">${base.name}</span>
+                        <span class="font-serif text-cream-500 text-sm">$${base.price}</span>
+                    </div>
+                </label>`;
+            });
+            html += '</div>';
+            
+            settings.bases.slice(2).forEach(base => {
+                html += `
+                <label class="option-item relative cursor-pointer block">
+                    <input type="radio" name="basePrice" value="${base.id}" class="sr-only" 
+                        onclick="updateBase('${base.id}')" ${state.selectedBaseId === base.id ? 'checked' : ''}>
+                    <div class="option-content flex items-center justify-between px-4 py-5">
+                        <span class="text-sm font-bold text-cream-800 pr-2">${base.name}</span>
+                        <span class="font-serif text-cream-500 text-sm flex-shrink-0">$${base.price}</span>
+                    </div>
+                </label>`;
+            });
+            baseContainer.innerHTML = html;
+
+            document.getElementById('quickOptionsBar').innerHTML = settings.artPresets.map(opt => {
+                const isSelected = state.artItems.some(i => i.name === opt);
+                return `<button onclick="addNewArtRow('${opt}', 100)" class="quick-addon-btn ${isSelected ? 'quick-addon-btn-selected' : ''}" ${isSelected ? 'disabled' : ''}>${opt}</button>`;
+            }).join('');
+
+            renderArtList();
+        }
+
+        function updateBase(id) { 
+            if (state.selectedBaseId === id) {
+                state.selectedBaseId = null;
+                const radios = document.getElementsByName('basePrice');
+                radios.forEach(r => r.checked = false);
+            } else {
+                state.selectedBaseId = id;
+            }
+            calculateTotal(); 
+        }
+
+        function updateFixedAddon(type, delta) {
+            state.fixedAddons[type] = Math.max(0, state.fixedAddons[type] + delta);
+            document.getElementById(`count-${type}`).innerText = state.fixedAddons[type];
+            calculateTotal();
+        }
+
+        function renderArtList() {
+            const container = document.getElementById('artList');
+            container.innerHTML = state.artItems.map((item, index) => `
+                <div class="flex items-center gap-2.5 w-full">
+                    <div class="art-box px-4 grow justify-start">
+                        <span class="text-sm font-bold text-cream-800 truncate">${item.name}</span>
+                    </div>
+                    
+                    <div class="art-box px-2 w-[80px] shrink-0">
+                        <span class="text-xs text-cream-300 mr-0.5 font-serif font-bold">$</span>
+                        <input type="number" value="${item.price}" 
+                               oninput="updateArtItemPrice(${index}, this.value)" 
+                               class="w-full bg-transparent border-none text-sm font-bold text-cream-700 focus:ring-0 text-left p-0">
+                    </div>
+
+                    <div class="art-box px-1 w-[100px] shrink-0">
+                        <button onclick="updateArtItemQty(${index}, ${item.qty - 1})" class="w-9 h-9 flex items-center justify-center text-cream-400 active:text-cream-600"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                        <span class="grow text-center text-sm font-bold text-cream-900">${item.qty}</span>
+                        <button onclick="updateArtItemQty(${index}, ${item.qty + 1})" class="w-9 h-9 flex items-center justify-center text-cream-400 active:text-cream-600"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                    </div>
+
+                    <button onclick="removeArtItem(${index})" class="w-8 h-8 flex items-center justify-center text-cream-200 hover:text-red-400 transition-colors shrink-0">
+                        <i class="fa-solid fa-circle-xmark text-xl"></i>
+                    </button>
+                </div>`).join('');
+            
+            if(state.artItems.length === 0) {
+                container.innerHTML = '<div class="text-center py-6 text-cream-200 text-sm italic">選取快捷鍵新增造型項目</div>';
+            }
+        }
+
+        function addNewArtRow(name, price) { 
+            state.artItems.push({ name, price, qty: 1 }); 
+            renderMainUI(); 
+            calculateTotal(); 
+        }
+
+        function updateArtItemPrice(index, value) {
+            state.artItems[index].price = parseInt(value) || 0;
+            calculateTotal();
+        }
+
+        function updateArtItemQty(index, value) {
+            state.artItems[index].qty = Math.max(1, value);
+            renderArtList(); 
+            calculateTotal();
+        }
+
+        function removeArtItem(index) { 
+            state.artItems.splice(index, 1); 
+            renderMainUI(); calculateTotal(); 
+        }
+
+        function setRemoval(type) {
+            state.removalType = type;
+            [0,1,2].forEach(i => {
+                const btn = document.getElementById(`rm-btn-${i}`);
+                if(i === type) btn.className = "flex-1 py-3 text-sm font-bold rounded-xl bg-cream-900 text-white shadow-lg transition-all";
+                else btn.className = "flex-1 py-3 text-sm font-bold rounded-xl text-cream-400 active:bg-cream-100 transition-all";
+            });
+            calculateTotal();
+        }
+
+        function toggleDiscount(type) {
+            state.discounts[type] = document.getElementById(`check-${type}`).checked;
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let subtotal = 0;
+            const base = settings.bases.find(b => b.id === state.selectedBaseId);
+            if (base) subtotal += base.price;
+            subtotal += state.fixedAddons.repair * 50;
+            subtotal += state.fixedAddons.colorJump * 50;
+            state.artItems.forEach(i => subtotal += (i.price * i.qty));
+            if (state.removalType === 1) subtotal += settings.removal.shop;
+            if (state.removalType === 2) subtotal += settings.removal.other;
+
+            let finalTotal = subtotal;
+            if(state.discounts.birthday) finalTotal = Math.round(finalTotal * 0.9);
+            if(state.discounts.share) finalTotal -= 100;
+            finalTotal += parseInt(document.getElementById('adjustmentAmount').value) || 0;
+            finalTotal = Math.max(0, finalTotal);
+
+            const display = finalTotal.toLocaleString();
+            document.getElementById('displayTotal').innerText = display;
+            document.getElementById('modalTotal').innerText = display;
+            return { subtotal, finalTotal };
+        }
+
+        function toggleSettings() {
+            const modal = document.getElementById('settingsModal');
+            const panel = document.getElementById('settingsPanel');
+            if(modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => panel.classList.remove('translate-x-full'), 10);
+            } else {
+                panel.classList.add('translate-x-full');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            }
+        }
+
+        function addSettingItem(type) {
+            if(type === 'base') {
+                const n = document.getElementById('newBaseName').value;
+                const p = parseInt(document.getElementById('newBasePrice').value);
+                if(!n || isNaN(p)) return;
+                settings.bases.push({ id: Date.now().toString(), name: n, price: p });
+            } else {
+                const n = document.getElementById('newArtName').value;
+                if(!n) return;
+                settings.artPresets.push(n);
+            }
+            saveSettings(); renderSettingsUI(); renderMainUI();
+            document.getElementById('newBaseName').value = ''; document.getElementById('newBasePrice').value = '';
+            document.getElementById('newArtName').value = '';
+        }
+
+        function removeSettingItem(type, idOrIdx) {
+            if(type === 'base') settings.bases = settings.bases.filter(i => i.id !== idOrIdx);
+            else settings.artPresets.splice(idOrIdx, 1);
+            saveSettings(); renderSettingsUI(); renderMainUI();
+        }
+
+        function saveSettings() { localStorage.setItem('nailSettings_v7', JSON.stringify(settings)); }
+        function resetDefaultSettings() { 
+            if(confirm('重置所有設定？')) {
+                settings = JSON.parse(JSON.stringify(defaultSettings)); 
+                saveSettings(); renderSettingsUI(); renderMainUI(); toggleSettings(); 
+            }
+        }
+
+        function openDetailModal() {
+            let h = '';
+            const base = settings.bases.find(b => b.id === state.selectedBaseId);
+            if(base) h += `<div class="flex justify-between font-bold text-sm"><span>${base.name}</span><span>$${base.price}</span></div>`;
+            if(state.fixedAddons.repair > 0) h += `<div class="flex justify-between text-sm"><span>補甲 x${state.fixedAddons.repair}</span><span>+$${state.fixedAddons.repair * 50}</span></div>`;
+            if(state.fixedAddons.colorJump > 0) h += `<div class="flex justify-between text-sm"><span>跳色 x${state.fixedAddons.colorJump}</span><span>+$${state.fixedAddons.colorJump * 50}</span></div>`;
+            state.artItems.forEach(i => h += `<div class="flex justify-between text-sm"><span>${i.name} x${i.qty}</span><span>+$${i.price * i.qty}</span></div>`);
+            if(state.removalType !== 0) {
+                const p = state.removalType === 1 ? settings.removal.shop : settings.removal.other;
+                h += `<div class="flex justify-between font-bold text-sm"><span>卸甲 (${state.removalType === 1 ? '本店' : '他店'})</span><span>+$${p}</span></div>`;
+            }
+            const { subtotal } = calculateTotal();
+            if(state.discounts.birthday) h += `<div class="flex justify-between text-cream-600 font-bold text-sm"><span>生日 9 折</span><span>-$${Math.round(subtotal * 0.1)}</span></div>`;
+            if(state.discounts.share) h += `<div class="flex justify-between text-cream-600 font-bold text-sm"><span>分享活動折抵</span><span>-$100</span></div>`;
+            const adj = parseInt(document.getElementById('adjustmentAmount').value) || 0;
+            if(adj !== 0) h += `<div class="flex justify-between italic text-cream-400 text-sm"><span>額外調整</span><span>${adj > 0 ? '+' : ''}${adj}</span></div>`;
+            document.getElementById('receiptContent').innerHTML = h || '<div class="text-center opacity-30 italic py-4 text-sm">未選取服務項目</div>';
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
+
+        function copyToClipboard() {
+            let t = "✦ SOUVENIR ATELIER ✦\n";
+            const base = settings.bases.find(b => b.id === state.selectedBaseId);
+            if(base) t += `- ${base.name}: $${base.price}\n`;
+            if(state.fixedAddons.repair > 0) t += `- 補甲 x${state.fixedAddons.repair}: +$${state.fixedAddons.repair * 50}\n`;
+            if(state.fixedAddons.colorJump > 0) t += `- 跳色 x${state.fixedAddons.colorJump}: +$${state.fixedAddons.colorJump * 50}\n`;
+            state.artItems.forEach(i => t += `- ${i.name} x${i.qty}: +$${i.price * i.qty}\n`);
+            if(state.removalType !== 0) t += `- 卸甲: +$${state.removalType === 1 ? settings.removal.shop : settings.removal.other}\n`;
+            const { subtotal } = calculateTotal();
+            if(state.discounts.birthday) t += `- 生日優惠: -$${Math.round(subtotal * 0.1)}\n`;
+            if(state.discounts.share) t += `- 分享優惠: -$100\n`;
+            const adj = parseInt(document.getElementById('adjustmentAmount').value) || 0;
+            if(adj !== 0) t += `- 調整: ${adj}\n`;
+            t += `────────────────\n總計：$${document.getElementById('displayTotal').innerText}`;
+            const area = document.createElement('textarea'); area.value = t; document.body.appendChild(area); area.select(); document.execCommand('copy'); document.body.removeChild(area);
+            const toast = document.getElementById('toast'); toast.style.opacity = '1'; setTimeout(() => toast.style.opacity = '0', 2500);
+        }
+    </script>
+</body>
+</html>
