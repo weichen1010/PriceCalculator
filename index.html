@@ -53,6 +53,7 @@
             -webkit-tap-highlight-color: transparent;
             user-select: none;
             -webkit-user-select: none;
+            overflow-x: hidden; /* 防止橫向滾動 */
         }
         
         .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -143,6 +144,7 @@
             border: 1px solid #efe8dd;
             color: #7d6149;
             box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            flex-shrink: 0;
         }
 
         .quick-addon-btn-selected {
@@ -154,8 +156,8 @@
 
         /* Settings Drawer Animation & Responsiveness */
         #settingsPanel {
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            max-width: 400px;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 420px;
         }
 
         @media (min-width: 768px) {
@@ -190,7 +192,7 @@
 
     <!-- Settings Panel (Side Drawer) -->
     <div id="settingsModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="toggleSettings()" id="settingsOverlay"></div>
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity opacity-0" onclick="toggleSettings()" id="settingsOverlay"></div>
         <div class="absolute right-0 top-0 bottom-0 w-[88%] bg-white shadow-2xl flex flex-col transform translate-x-full" id="settingsPanel">
             
             <!-- Settings Header -->
@@ -206,53 +208,57 @@
 
             <!-- Settings Content -->
             <div class="flex-1 overflow-y-auto p-6 space-y-8 hide-scrollbar bg-cream-50/20">
-                <!-- Base Prices -->
+                
+                <!-- Base Prices Setting -->
                 <section>
                     <div class="flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-palette text-cream-300 text-xs"></i>
+                        <i class="fa-solid fa-palette text-cream-400 text-xs"></i>
                         <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">款式底價設定</h3>
                     </div>
                     <div id="settingsBaseList" class="space-y-3 mb-4"></div>
+                    <!-- 新增底價款式 UI - 優化間距 -->
                     <div class="p-4 bg-white rounded-2xl border border-cream-100 shadow-sm space-y-3">
-                        <input type="text" id="newBaseName" placeholder="服務名稱 (如: 特殊貓眼)" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all">
+                        <input type="text" id="newBaseName" placeholder="服務名稱 (如: 漸層凝膠)" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all">
                         <div class="flex gap-2">
                             <div class="relative flex-1">
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cream-300 font-serif text-sm">$</span>
                                 <input type="number" id="newBasePrice" placeholder="金額" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 pl-7 focus:ring-2 focus:ring-cream-300 transition-all">
                             </div>
-                            <button onclick="addSettingItem('base')" class="bg-cream-900 text-white px-5 rounded-xl active:scale-95 transition-all">
+                            <button onclick="addSettingItem('base')" class="bg-cream-900 text-white w-14 rounded-xl active:scale-95 transition-all flex items-center justify-center">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
                     </div>
                 </section>
 
-                <!-- Art Presets -->
+                <!-- Art Presets Setting - 修正手機跑掉問題 -->
                 <section class="pt-6 border-t border-cream-100">
                     <div class="flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-wand-magic-sparkles text-cream-300 text-xs"></i>
+                        <i class="fa-solid fa-wand-magic-sparkles text-cream-400 text-xs"></i>
                         <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">造型快捷鍵管理</h3>
                     </div>
                     <div id="settingsArtList" class="grid grid-cols-1 gap-2 mb-4"></div>
-                    <div class="p-4 bg-white rounded-2xl border border-cream-100 shadow-sm flex gap-2">
-                        <input type="text" id="newArtName" placeholder="造型名稱 (如: 鑽飾)" class="flex-1 text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all">
-                        <button onclick="addSettingItem('art')" class="bg-cream-900 text-white px-5 rounded-xl active:scale-95 transition-all">
-                            <i class="fa-solid fa-plus"></i>
+                    
+                    <!-- 新增造型快捷鍵 UI - 修正為垂直堆疊或響應式排列 -->
+                    <div class="p-4 bg-white rounded-2xl border border-cream-100 shadow-sm flex flex-col gap-3">
+                        <input type="text" id="newArtName" placeholder="造型名稱 (如: 鑽飾)" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all">
+                        <button onclick="addSettingItem('art')" class="w-full bg-cream-900 text-white py-3.5 rounded-xl active:scale-95 transition-all font-bold text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus text-xs"></i> 新增快捷鍵
                         </button>
                     </div>
                 </section>
 
-                <!-- System -->
-                <section class="pt-6 border-t border-cream-100 pb-10">
+                <!-- System Info & Reset -->
+                <section class="pt-6 border-t border-cream-100 pb-12">
                     <div class="flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-database text-cream-300 text-xs"></i>
-                        <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">系統資料</h3>
+                        <i class="fa-solid fa-database text-cream-400 text-xs"></i>
+                        <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">系統資料管理</h3>
                     </div>
-                    <button onclick="resetDefaultSettings()" class="w-full py-4 text-sm text-red-500 font-bold border border-red-100 rounded-2xl bg-red-50/50 active:bg-red-100 transition-colors">
+                    <button onclick="resetDefaultSettings()" class="w-full py-4 text-xs text-red-500 font-bold border border-red-100 rounded-2xl bg-red-50/50 active:bg-red-100 transition-colors">
                         <i class="fa-solid fa-rotate-left mr-2"></i> 恢復系統初始設定
                     </button>
-                    <p class="text-center text-[10px] text-cream-300 mt-4 leading-relaxed">
-                        所有設定將儲存於此裝置瀏覽器中<br>清除快取可能會導致設定遺失
+                    <p class="text-center text-[10px] text-cream-300 mt-5 leading-relaxed px-4">
+                        所有設定皆會自動儲存於此裝置。<br>若清除瀏覽器快取，自訂資料將會消失。
                     </p>
                 </section>
             </div>
@@ -413,6 +419,7 @@
         });
 
         function renderSettingsUI() {
+            // Render Base Price List
             document.getElementById('settingsBaseList').innerHTML = settings.bases.map(b => `
                 <div class="flex items-center justify-between bg-white p-3.5 rounded-xl border border-cream-50 shadow-sm">
                     <div class="flex flex-col">
@@ -424,6 +431,7 @@
                     </button>
                 </div>`).join('');
             
+            // Render Art Presets List
             document.getElementById('settingsArtList').innerHTML = settings.artPresets.map((art, idx) => `
                 <div class="flex items-center justify-between bg-white p-3.5 rounded-xl border border-cream-50 shadow-sm">
                     <span class="text-sm font-bold text-cream-800">${art}</span>
@@ -514,7 +522,7 @@
                 </div>`).join('');
             
             if(state.artItems.length === 0) {
-                container.innerHTML = '<div class="text-center py-6 text-cream-200 text-sm italic">選取快捷鍵新增造型項目</div>';
+                container.innerHTML = '<div class="text-center py-6 text-cream-200 text-sm italic font-medium">選取快捷鍵新增造型項目</div>';
             }
         }
 
@@ -590,7 +598,7 @@
             } else {
                 panel.classList.add('translate-x-full');
                 overlay.classList.remove('opacity-100');
-                setTimeout(() => modal.classList.add('hidden'), 300);
+                setTimeout(() => modal.classList.add('hidden'), 400);
             }
         }
 
@@ -617,6 +625,7 @@
         }
 
         function saveSettings() { localStorage.setItem('nailSettings_v8', JSON.stringify(settings)); }
+        
         function resetDefaultSettings() { 
             if(confirm('確定要恢復系統預設值嗎？這將會清除您目前所有的自訂資料。')) {
                 settings = JSON.parse(JSON.stringify(defaultSettings)); 
