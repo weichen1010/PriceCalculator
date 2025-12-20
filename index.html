@@ -58,7 +58,7 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             -moz-appearance: textfield;
             font-size: 16px !important; /* 防止 iOS 自動縮放 */
         }
@@ -118,26 +118,26 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 44px; /* 稍微增加高度以配合較大字體 */
+            height: 48px;
             transition: all 0.2s ease;
         }
 
         .counter-btn {
-            width: 36px;
-            height: 36px;
+            width: 44px;
+            height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border-radius: 12px;
             background-color: #fcfcf9;
             border: 1px solid #f0eee8;
         }
 
         .quick-addon-btn {
             white-space: nowrap;
-            padding: 0.6rem 1.2rem;
+            padding: 0.75rem 1.5rem;
             border-radius: 2rem;
-            font-size: 0.875rem; /* 大一點 */
+            font-size: 0.875rem; 
             font-weight: 600;
             background-color: white;
             border: 1px solid #efe8dd;
@@ -150,6 +150,18 @@
             color: #9ca3af !important;
             border-color: #d1d5db !important;
             opacity: 0.6;
+        }
+
+        /* Settings Drawer Animation & Responsiveness */
+        #settingsPanel {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 400px;
+        }
+
+        @media (min-width: 768px) {
+            #settingsPanel {
+                border-radius: 2rem 0 0 2rem;
+            }
         }
 
         .footer-safe-area {
@@ -167,54 +179,88 @@
 
     <!-- Header -->
     <header class="fixed top-0 left-0 right-0 z-40 glass-header border-b border-cream-100">
-        <div class="max-w-md mx-auto h-16 flex items-center justify-center px-6 relative">
-            <div class="flex items-center gap-2">
-                <h1 class="font-serif text-lg font-bold text-cream-800 tracking-[0.2em] uppercase">SOUVENIR ATELIER</h1>
-                <button onclick="toggleSettings()" class="text-cream-300 hover:text-cream-500 p-2 -mr-2">
-                    <i class="fa-solid fa-gear text-[12px]"></i>
-                </button>
-            </div>
+        <div class="max-w-md mx-auto h-16 flex items-center justify-between px-6 relative">
+            <div class="w-10"></div>
+            <h1 class="font-serif text-lg font-bold text-cream-800 tracking-[0.2em] uppercase">SOUVENIR ATELIER</h1>
+            <button onclick="toggleSettings()" class="text-cream-400 hover:text-cream-600 p-2 -mr-2 flex items-center justify-center w-10 h-10 bg-cream-50 rounded-full transition-colors">
+                <i class="fa-solid fa-gear text-sm"></i>
+            </button>
         </div>
     </header>
 
-    <!-- Settings Panel -->
+    <!-- Settings Panel (Side Drawer) -->
     <div id="settingsModal" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onclick="toggleSettings()"></div>
-        <div class="absolute right-0 top-0 bottom-0 w-[85%] max-w-xs bg-white shadow-2xl flex flex-col transform transition-transform duration-300 translate-x-full" id="settingsPanel">
-            <div class="p-6 border-b border-cream-50 flex items-center justify-between" style="padding-top: calc(1.5rem + var(--sat))">
-                <h2 class="font-bold text-cream-800 text-base">設定管理</h2>
-                <button onclick="toggleSettings()" class="w-8 h-8 flex items-center justify-center rounded-full bg-cream-50 text-cream-400"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="flex-1 overflow-y-auto p-6 space-y-8 hide-scrollbar">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="toggleSettings()" id="settingsOverlay"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-[88%] bg-white shadow-2xl flex flex-col transform translate-x-full" id="settingsPanel">
+            
+            <!-- Settings Header -->
+            <div class="px-6 py-4 border-b border-cream-100 flex items-center justify-between bg-white sticky top-0 z-10" style="padding-top: calc(1rem + var(--sat))">
                 <div>
-                    <h3 class="text-[11px] font-bold text-cream-400 uppercase tracking-widest mb-4">款式底價</h3>
-                    <div id="settingsBaseList" class="space-y-2 mb-4"></div>
-                    <div class="flex flex-col gap-2 p-3 bg-cream-50 rounded-xl">
-                        <input type="text" id="newBaseName" placeholder="名稱" class="text-sm border-none rounded-lg bg-white p-2.5 focus:ring-1 focus:ring-cream-300">
+                    <h2 class="font-black text-cream-900 text-lg">設定管理</h2>
+                    <p class="text-[10px] text-cream-400 uppercase tracking-widest font-bold">Preferences</p>
+                </div>
+                <button onclick="toggleSettings()" class="w-10 h-10 flex items-center justify-center rounded-full bg-cream-50 text-cream-500 active:scale-90 transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-8 hide-scrollbar bg-cream-50/20">
+                <!-- Base Prices -->
+                <section>
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-palette text-cream-300 text-xs"></i>
+                        <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">款式底價設定</h3>
+                    </div>
+                    <div id="settingsBaseList" class="space-y-3 mb-4"></div>
+                    <div class="p-4 bg-white rounded-2xl border border-cream-100 shadow-sm space-y-3">
+                        <input type="text" id="newBaseName" placeholder="服務名稱 (如: 特殊貓眼)" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all">
                         <div class="flex gap-2">
-                            <input type="number" id="newBasePrice" placeholder="金額" class="flex-1 text-sm border-none rounded-lg bg-white p-2.5 focus:ring-1 focus:ring-cream-300">
-                            <button onclick="addSettingItem('base')" class="bg-cream-800 text-white px-4 rounded-lg"><i class="fa-solid fa-plus"></i></button>
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-cream-300 font-serif text-sm">$</span>
+                                <input type="number" id="newBasePrice" placeholder="金額" class="w-full text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 pl-7 focus:ring-2 focus:ring-cream-300 transition-all">
+                            </div>
+                            <button onclick="addSettingItem('base')" class="bg-cream-900 text-white px-5 rounded-xl active:scale-95 transition-all">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
                         </div>
                     </div>
-                </div>
-                <div class="pt-6 border-t border-cream-50">
-                    <h3 class="text-[11px] font-bold text-cream-400 uppercase tracking-widest mb-4">造型快捷鍵</h3>
-                    <div id="settingsArtList" class="space-y-2 mb-4"></div>
-                    <div class="flex gap-2 p-3 bg-cream-50 rounded-xl">
-                        <input type="text" id="newArtName" placeholder="名稱" class="flex-1 text-sm border-none rounded-lg bg-white p-2.5 focus:ring-1 focus:ring-cream-300">
-                        <button onclick="addSettingItem('art')" class="bg-cream-800 text-white px-4 rounded-lg"><i class="fa-solid fa-plus"></i></button>
+                </section>
+
+                <!-- Art Presets -->
+                <section class="pt-6 border-t border-cream-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-wand-magic-sparkles text-cream-300 text-xs"></i>
+                        <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">造型快捷鍵管理</h3>
                     </div>
-                </div>
-                <div class="pt-6 border-t border-cream-50 pb-12">
-                    <button onclick="resetDefaultSettings()" class="w-full py-3 text-sm text-red-400 font-medium border border-red-50 rounded-xl bg-red-50/30">恢復系統預設值</button>
-                </div>
+                    <div id="settingsArtList" class="grid grid-cols-1 gap-2 mb-4"></div>
+                    <div class="p-4 bg-white rounded-2xl border border-cream-100 shadow-sm flex gap-2">
+                        <input type="text" id="newArtName" placeholder="造型名稱 (如: 鑽飾)" class="flex-1 text-sm border-cream-100 rounded-xl bg-cream-50/50 p-3.5 focus:ring-2 focus:ring-cream-300 transition-all">
+                        <button onclick="addSettingItem('art')" class="bg-cream-900 text-white px-5 rounded-xl active:scale-95 transition-all">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- System -->
+                <section class="pt-6 border-t border-cream-100 pb-10">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-database text-cream-300 text-xs"></i>
+                        <h3 class="text-[11px] font-black text-cream-500 uppercase tracking-widest">系統資料</h3>
+                    </div>
+                    <button onclick="resetDefaultSettings()" class="w-full py-4 text-sm text-red-500 font-bold border border-red-100 rounded-2xl bg-red-50/50 active:bg-red-100 transition-colors">
+                        <i class="fa-solid fa-rotate-left mr-2"></i> 恢復系統初始設定
+                    </button>
+                    <p class="text-center text-[10px] text-cream-300 mt-4 leading-relaxed">
+                        所有設定將儲存於此裝置瀏覽器中<br>清除快取可能會導致設定遺失
+                    </p>
+                </section>
             </div>
         </div>
     </div>
 
     <!-- Main Content -->
     <main class="pt-24 px-5 max-w-md mx-auto space-y-6 pb-40">
-        
         <!-- 款式底價 -->
         <section class="section-container">
             <h2 class="section-title">款式底價</h2>
@@ -249,23 +295,19 @@
         <!-- 進階造型 -->
         <section class="section-container">
             <h2 class="section-title">進階造型</h2>
-            <div id="quickOptionsBar" class="flex overflow-x-auto gap-2 pb-3 pt-2 hide-scrollbar">
-                <!-- 由 JS 生成 -->
-            </div>
+            <div id="quickOptionsBar" class="flex overflow-x-auto gap-2 pb-3 pt-2 hide-scrollbar"></div>
             <div class="section-divider"></div>
-            <div id="artList" class="space-y-4">
-                <!-- 由 JS 生成 -->
-            </div>
+            <div id="artList" class="space-y-4"></div>
         </section>
 
         <!-- 卸甲服務 -->
         <section class="section-container">
             <h2 class="section-title">卸甲服務</h2>
             <div class="section-divider"></div>
-            <div class="bg-cream-50/50 rounded-2xl overflow-hidden p-1 flex gap-1">
-                <button onclick="setRemoval(0)" id="rm-btn-0" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all">無</button>
-                <button onclick="setRemoval(1)" id="rm-btn-1" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all">本店</button>
-                <button onclick="setRemoval(2)" id="rm-btn-2" class="flex-1 py-3 text-sm font-bold rounded-xl transition-all">他店</button>
+            <div class="bg-cream-50/50 rounded-2xl overflow-hidden p-1.5 flex gap-1.5 border border-cream-100">
+                <button onclick="setRemoval(0)" id="rm-btn-0" class="flex-1 py-3.5 text-sm font-bold rounded-xl transition-all">無</button>
+                <button onclick="setRemoval(1)" id="rm-btn-1" class="flex-1 py-3.5 text-sm font-bold rounded-xl transition-all">本店</button>
+                <button onclick="setRemoval(2)" id="rm-btn-2" class="flex-1 py-3.5 text-sm font-bold rounded-xl transition-all">他店</button>
             </div>
         </section>
 
@@ -279,14 +321,14 @@
                         <input type="checkbox" id="check-birthday" class="sr-only" onchange="toggleDiscount('birthday')">
                         <div class="option-content relative flex items-center justify-between px-3 py-4 transition-all">
                             <span class="text-sm font-bold text-cream-800">生日 9 折</span>
-                            <i class="fa-solid fa-cake-candles text-xs text-cream-300"></i>
+                            <i class="fa-solid fa-cake-candles text-xs text-cream-200"></i>
                         </div>
                     </label>
                     <label class="option-item relative cursor-pointer block">
                         <input type="checkbox" id="check-share" class="sr-only" onchange="toggleDiscount('share')">
                         <div class="option-content relative flex items-center justify-between px-3 py-4 transition-all">
                             <span class="text-sm font-bold text-cream-800">分享折 $100</span>
-                            <i class="fa-solid fa-share-nodes text-xs text-cream-300"></i>
+                            <i class="fa-solid fa-share-nodes text-xs text-cream-200"></i>
                         </div>
                     </label>
                 </div>
@@ -295,7 +337,7 @@
                         <span class="text-sm font-bold text-cream-800">其他調整</span>
                         <div class="relative">
                             <span class="absolute left-2 top-1/2 -translate-y-1/2 text-xs text-cream-300 font-serif">$</span>
-                            <input type="number" id="adjustmentAmount" value="0" oninput="calculateTotal()" class="w-28 pl-5 pr-1 py-1.5 text-right text-sm border-none rounded-lg bg-cream-50 font-bold focus:ring-0">
+                            <input type="number" id="adjustmentAmount" value="0" oninput="calculateTotal()" class="w-32 pl-5 pr-1 py-2 text-right text-sm border-none rounded-lg bg-cream-50/50 font-black focus:ring-0">
                         </div>
                     </div>
                 </div>
@@ -325,7 +367,7 @@
         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeDetailModal()"></div>
         <div class="bg-white rounded-[2rem] p-7 w-full max-w-sm relative shadow-2xl modal-animate">
             <div class="text-center mb-6">
-                <h3 class="font-serif text-lg font-bold text-cream-900 tracking-widest">SOUVENIR ATELIER</h3>
+                <h3 class="font-serif text-lg font-bold text-cream-900 tracking-widest uppercase">SOUVENIR ATELIER</h3>
                 <div class="w-8 h-[1px] bg-cream-200 mx-auto mt-2"></div>
             </div>
             <div id="receiptContent" class="space-y-4 mb-8 text-sm max-h-72 overflow-y-auto pr-1 hide-scrollbar"></div>
@@ -355,7 +397,7 @@
             removal: { shop: 250, other: 300 }
         };
 
-        let settings = JSON.parse(localStorage.getItem('nailSettings_v7')) || JSON.parse(JSON.stringify(defaultSettings));
+        let settings = JSON.parse(localStorage.getItem('nailSettings_v8')) || JSON.parse(JSON.stringify(defaultSettings));
         let state = { 
             selectedBaseId: null, 
             fixedAddons: { repair: 0, colorJump: 0 }, 
@@ -372,14 +414,22 @@
 
         function renderSettingsUI() {
             document.getElementById('settingsBaseList').innerHTML = settings.bases.map(b => `
-                <div class="flex items-center justify-between text-xs bg-cream-50/50 p-3 rounded-xl">
-                    <span class="text-cream-800 font-bold pr-2">${b.name} ($${b.price})</span>
-                    <button onclick="removeSettingItem('base', '${b.id}')" class="text-red-300 p-1 flex-shrink-0"><i class="fa-solid fa-minus-circle"></i></button>
+                <div class="flex items-center justify-between bg-white p-3.5 rounded-xl border border-cream-50 shadow-sm">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-cream-900">${b.name}</span>
+                        <span class="text-xs text-cream-400 font-serif">$${b.price}</span>
+                    </div>
+                    <button onclick="removeSettingItem('base', '${b.id}')" class="w-10 h-10 flex items-center justify-center text-red-300 active:text-red-500 transition-colors">
+                        <i class="fa-solid fa-circle-minus text-xl"></i>
+                    </button>
                 </div>`).join('');
+            
             document.getElementById('settingsArtList').innerHTML = settings.artPresets.map((art, idx) => `
-                <div class="flex items-center justify-between text-xs bg-cream-50/50 p-3 rounded-xl">
-                    <span class="text-cream-800 font-bold">${art}</span>
-                    <button onclick="removeSettingItem('art', ${idx})" class="text-red-300 p-1"><i class="fa-solid fa-minus-circle"></i></button>
+                <div class="flex items-center justify-between bg-white p-3.5 rounded-xl border border-cream-50 shadow-sm">
+                    <span class="text-sm font-bold text-cream-800">${art}</span>
+                    <button onclick="removeSettingItem('art', ${idx})" class="w-10 h-10 flex items-center justify-center text-red-300 active:text-red-500 transition-colors">
+                        <i class="fa-solid fa-circle-minus text-xl"></i>
+                    </button>
                 </div>`).join('');
         }
 
@@ -445,20 +495,20 @@
                         <span class="text-sm font-bold text-cream-800 truncate">${item.name}</span>
                     </div>
                     
-                    <div class="art-box px-2 w-[80px] shrink-0">
+                    <div class="art-box px-2 w-[85px] shrink-0">
                         <span class="text-xs text-cream-300 mr-0.5 font-serif font-bold">$</span>
                         <input type="number" value="${item.price}" 
                                oninput="updateArtItemPrice(${index}, this.value)" 
                                class="w-full bg-transparent border-none text-sm font-bold text-cream-700 focus:ring-0 text-left p-0">
                     </div>
 
-                    <div class="art-box px-1 w-[100px] shrink-0">
-                        <button onclick="updateArtItemQty(${index}, ${item.qty - 1})" class="w-9 h-9 flex items-center justify-center text-cream-400 active:text-cream-600"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                    <div class="art-box px-1 w-[110px] shrink-0">
+                        <button onclick="updateArtItemQty(${index}, ${item.qty - 1})" class="w-10 h-10 flex items-center justify-center text-cream-400 active:text-cream-600"><i class="fa-solid fa-minus text-[10px]"></i></button>
                         <span class="grow text-center text-sm font-bold text-cream-900">${item.qty}</span>
-                        <button onclick="updateArtItemQty(${index}, ${item.qty + 1})" class="w-9 h-9 flex items-center justify-center text-cream-400 active:text-cream-600"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                        <button onclick="updateArtItemQty(${index}, ${item.qty + 1})" class="w-10 h-10 flex items-center justify-center text-cream-400 active:text-cream-600"><i class="fa-solid fa-plus text-[10px]"></i></button>
                     </div>
 
-                    <button onclick="removeArtItem(${index})" class="w-8 h-8 flex items-center justify-center text-cream-200 hover:text-red-400 transition-colors shrink-0">
+                    <button onclick="removeArtItem(${index})" class="w-10 h-10 flex items-center justify-center text-cream-200 hover:text-red-400 transition-colors shrink-0">
                         <i class="fa-solid fa-circle-xmark text-xl"></i>
                     </button>
                 </div>`).join('');
@@ -494,8 +544,8 @@
             state.removalType = type;
             [0,1,2].forEach(i => {
                 const btn = document.getElementById(`rm-btn-${i}`);
-                if(i === type) btn.className = "flex-1 py-3 text-sm font-bold rounded-xl bg-cream-900 text-white shadow-lg transition-all";
-                else btn.className = "flex-1 py-3 text-sm font-bold rounded-xl text-cream-400 active:bg-cream-100 transition-all";
+                if(i === type) btn.className = "flex-1 py-3.5 text-sm font-bold rounded-xl bg-cream-900 text-white shadow-lg transition-all";
+                else btn.className = "flex-1 py-3.5 text-sm font-bold rounded-xl text-cream-400 active:bg-cream-100 transition-all";
             });
             calculateTotal();
         }
@@ -530,11 +580,16 @@
         function toggleSettings() {
             const modal = document.getElementById('settingsModal');
             const panel = document.getElementById('settingsPanel');
+            const overlay = document.getElementById('settingsOverlay');
             if(modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
-                setTimeout(() => panel.classList.remove('translate-x-full'), 10);
+                setTimeout(() => {
+                    panel.classList.remove('translate-x-full');
+                    overlay.classList.add('opacity-100');
+                }, 10);
             } else {
                 panel.classList.add('translate-x-full');
+                overlay.classList.remove('opacity-100');
                 setTimeout(() => modal.classList.add('hidden'), 300);
             }
         }
@@ -561,9 +616,9 @@
             saveSettings(); renderSettingsUI(); renderMainUI();
         }
 
-        function saveSettings() { localStorage.setItem('nailSettings_v7', JSON.stringify(settings)); }
+        function saveSettings() { localStorage.setItem('nailSettings_v8', JSON.stringify(settings)); }
         function resetDefaultSettings() { 
-            if(confirm('重置所有設定？')) {
+            if(confirm('確定要恢復系統預設值嗎？這將會清除您目前所有的自訂資料。')) {
                 settings = JSON.parse(JSON.stringify(defaultSettings)); 
                 saveSettings(); renderSettingsUI(); renderMainUI(); toggleSettings(); 
             }
