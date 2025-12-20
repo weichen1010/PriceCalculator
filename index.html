@@ -10,7 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: 載入 Noto Sans HK 變體以支援各平台圓潤效果 -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700;900&family=Playfair+Display:wght@600;800&display=swap" rel="stylesheet">
     
     <script>
@@ -32,7 +32,6 @@
                         }
                     },
                     fontFamily: {
-                        // 針對 iOS 優化：優先使用 Noto Sans HK，並加上 Apple 系統圓體後備
                         sans: ['"Noto Sans HK"', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"PingFang TC"', '"Heiti TC"', 'sans-serif'],
                         serif: ['Playfair Display', 'serif'],
                     }
@@ -55,14 +54,12 @@
             user-select: none;
             -webkit-user-select: none;
             overflow-x: hidden;
-            /* iOS 渲染優化：強制抗鋸齒，讓字體看起來更圓滑 */
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
             letter-spacing: 0.03em;
         }
         
-        /* 針對 iOS 上數字的圓體效果優化 */
         .font-serif, #displayTotal, #modalTotal, input {
             font-variant-numeric: tabular-nums;
             -webkit-font-feature-settings: "tnum", "onum";
@@ -72,11 +69,10 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 修正 iOS input 預設樣式與字體 */
         input[type="number"], input[type="text"] {
             -webkit-appearance: none;
             appearance: none;
-            font-size: 16px !important; /* 防止 iOS 自動縮放 */
+            font-size: 16px !important;
             font-family: '"Noto Sans HK"', sans-serif;
             border-radius: 0.75rem;
         }
@@ -99,7 +95,7 @@
         .glass-header {
             background: rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); /* 關鍵：iOS 模糊效果 */
+            -webkit-backdrop-filter: blur(20px);
             padding-top: var(--sat);
         }
 
@@ -111,7 +107,7 @@
         }
 
         .section-title {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 900;
             color: #997656;
             letter-spacing: 0.2em;
@@ -127,21 +123,20 @@
         .art-box {
             background-color: #fcfcf9;
             border: 1px solid #efe8dd;
-            border-radius: 1.25rem;
+            border-radius: 1rem;
             display: flex;
             align-items: center;
-            justify-content: center;
-            height: 48px;
+            height: 44px;
             transition: all 0.2s ease;
         }
 
         .counter-btn {
-            width: 42px;
-            height: 42px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 1.25rem;
+            border-radius: 0.8rem;
             background-color: #fcfcf9;
             border: 1px solid #f0eee8;
             -webkit-tap-highlight-color: transparent;
@@ -149,16 +144,15 @@
 
         .quick-addon-btn {
             white-space: nowrap;
-            padding: 0.75rem 1.5rem;
-            border-radius: 1.5rem;
-            font-size: 0.875rem; 
+            padding: 0.6rem 1.25rem;
+            border-radius: 1.25rem;
+            font-size: 0.8125rem; 
             font-weight: 600;
             background-color: white;
             border: 1px solid #efe8dd;
             color: #7d6149;
             box-shadow: 0 2px 6px rgba(0,0,0,0.02);
             flex-shrink: 0;
-            -webkit-transition: all 0.2s ease;
         }
 
         .quick-addon-btn-selected {
@@ -168,15 +162,21 @@
             opacity: 0.7;
         }
 
+        /* Grid 佈局確保 iPhone 上各種字數皆對齊 */
+        .art-row-grid {
+            display: grid;
+            grid-template-columns: 1fr 75px 95px 36px;
+            gap: 8px;
+            align-items: center;
+        }
+
         #settingsPanel {
             transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
             max-width: 420px;
         }
 
         @media (min-width: 768px) {
-            #settingsPanel {
-                border-radius: 2.5rem 0 0 2.5rem;
-            }
+            #settingsPanel { border-radius: 2.5rem 0 0 2.5rem; }
         }
 
         .footer-safe-area {
@@ -299,9 +299,9 @@
 
         <section class="section-container">
             <h2 class="section-title">進階造型</h2>
-            <div id="quickOptionsBar" class="flex overflow-x-auto gap-2.5 pb-3 pt-2 hide-scrollbar"></div>
+            <div id="quickOptionsBar" class="flex overflow-x-auto gap-2.5 pb-2 pt-1 hide-scrollbar"></div>
             <div class="section-divider"></div>
-            <div id="artList" class="space-y-4"></div>
+            <div id="artList" class="space-y-3 pt-1"></div>
         </section>
 
         <section class="section-container">
@@ -395,11 +395,19 @@
                 { id: 'b5', name: 'B. 3種以上異素材、鏡面、法式', price: 1600 },
                 { id: 'b6', name: 'C. 5種以上異素材', price: 1700 }
             ],
+            // 已移除 "鑽飾"
             artPresets: ['鏡面粉', '延甲', '貼紙', '立體'],
             removal: { shop: 250, other: 300 }
         };
 
         let settings = JSON.parse(localStorage.getItem('nailSettings_v8')) || JSON.parse(JSON.stringify(defaultSettings));
+        
+        // 如果 localStorage 中還有鑽飾，手動過濾掉
+        if (settings.artPresets.includes('鑽飾')) {
+            settings.artPresets = settings.artPresets.filter(item => item !== '鑽飾');
+            localStorage.setItem('nailSettings_v8', JSON.stringify(settings));
+        }
+
         let state = { 
             selectedBaseId: null, 
             fixedAddons: { repair: 0, colorJump: 0 }, 
@@ -472,6 +480,37 @@
             renderArtList();
         }
 
+        function renderArtList() {
+            const container = document.getElementById('artList');
+            container.innerHTML = state.artItems.map((item, index) => `
+                <div class="art-row-grid w-full">
+                    <div class="art-box px-3.5 bg-cream-50/30 overflow-hidden">
+                        <span class="text-[13px] font-bold text-cream-800 truncate block w-full">${item.name}</span>
+                    </div>
+                    
+                    <div class="art-box px-1.5 border-cream-200/50">
+                        <span class="text-[9px] text-cream-300 mr-0.5 font-serif font-black">$</span>
+                        <input type="number" value="${item.price}" 
+                               oninput="updateArtItemPrice(${index}, this.value)" 
+                               class="w-full bg-transparent border-none text-[13px] font-black text-cream-700 focus:ring-0 text-left p-0 outline-none">
+                    </div>
+
+                    <div class="art-box px-0.5">
+                        <button onclick="updateArtItemQty(${index}, ${item.qty - 1})" class="w-8 h-full flex items-center justify-center text-cream-200 active:text-cream-600"><i class="fa-solid fa-minus text-[9px]"></i></button>
+                        <span class="grow text-center text-[13px] font-black text-cream-900">${item.qty}</span>
+                        <button onclick="updateArtItemQty(${index}, ${item.qty + 1})" class="w-8 h-full flex items-center justify-center text-cream-200 active:text-cream-600"><i class="fa-solid fa-plus text-[9px]"></i></button>
+                    </div>
+
+                    <button onclick="removeArtItem(${index})" class="w-9 h-9 flex items-center justify-center text-cream-100 hover:text-red-300 transition-colors active:scale-90 mx-auto">
+                        <i class="fa-solid fa-circle-xmark text-xl"></i>
+                    </button>
+                </div>`).join('');
+            
+            if(state.artItems.length === 0) {
+                container.innerHTML = '<div class="text-center py-6 text-cream-200 text-[10px] tracking-[0.3em] font-black uppercase">Click presets to add style</div>';
+            }
+        }
+
         function updateBase(id) { 
             if (state.selectedBaseId === id) {
                 state.selectedBaseId = null;
@@ -487,37 +526,6 @@
             state.fixedAddons[type] = Math.max(0, state.fixedAddons[type] + delta);
             document.getElementById(`count-${type}`).innerText = state.fixedAddons[type];
             calculateTotal();
-        }
-
-        function renderArtList() {
-            const container = document.getElementById('artList');
-            container.innerHTML = state.artItems.map((item, index) => `
-                <div class="flex items-center gap-3 w-full">
-                    <div class="art-box px-5 grow justify-start bg-cream-50/30">
-                        <span class="text-sm font-bold text-cream-800 truncate">${item.name}</span>
-                    </div>
-                    
-                    <div class="art-box px-2 w-[85px] shrink-0 border-cream-200/50">
-                        <span class="text-[10px] text-cream-300 mr-0.5 font-serif font-black">$</span>
-                        <input type="number" value="${item.price}" 
-                               oninput="updateArtItemPrice(${index}, this.value)" 
-                               class="w-full bg-transparent border-none text-sm font-black text-cream-700 focus:ring-0 text-left p-0 outline-none">
-                    </div>
-
-                    <div class="art-box px-1 w-[110px] shrink-0">
-                        <button onclick="updateArtItemQty(${index}, ${item.qty - 1})" class="w-10 h-10 flex items-center justify-center text-cream-300 active:text-cream-600"><i class="fa-solid fa-minus text-[10px]"></i></button>
-                        <span class="grow text-center text-sm font-black text-cream-900">${item.qty}</span>
-                        <button onclick="updateArtItemQty(${index}, ${item.qty + 1})" class="w-10 h-10 flex items-center justify-center text-cream-300 active:text-cream-600"><i class="fa-solid fa-plus text-[10px]"></i></button>
-                    </div>
-
-                    <button onclick="removeArtItem(${index})" class="w-10 h-10 flex items-center justify-center text-cream-100 hover:text-red-300 transition-colors shrink-0 active:scale-90">
-                        <i class="fa-solid fa-circle-xmark text-2xl"></i>
-                    </button>
-                </div>`).join('');
-            
-            if(state.artItems.length === 0) {
-                container.innerHTML = '<div class="text-center py-8 text-cream-200 text-xs tracking-widest font-bold">SELECT PRESETS TO ADD ART</div>';
-            }
         }
 
         function addNewArtRow(name, price) { 
