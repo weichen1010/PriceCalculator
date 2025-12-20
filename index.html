@@ -666,7 +666,7 @@
         function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
 
         function copyToClipboard() {
-            let t = "✶ SOUVENIR ATELIER ✶\n\n";
+            let t = "✶ 𝐬𝐨𝐮𝐯𝐞𝐧𝐢𝐫 𝐚𝐭𝐞𝐥𝐢𝐞𝐫 ✶\n\n";
             const base = settings.bases.find(b => b.id === state.selectedBaseId);
             if(base) t += `- ${base.name}: $${base.price}\n`;
             if(state.fixedAddons.repair > 0) t += `- 補甲 x${state.fixedAddons.repair}: +$${state.fixedAddons.repair * 50}\n`;
