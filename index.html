@@ -402,7 +402,12 @@
                 { id: 'b5', name: 'B. 3種以上異素材、鏡面、法式', price: 1600 },
                 { id: 'b6', name: 'C. 5種以上異素材', price: 1700 }
             ],
-            artPresets: ['鏡面粉', '延甲', '貼紙', '立體'],
+            artPresets: [
+                { name: '鏡面粉', price: 100 },
+                { name: '延甲', price: 150 },
+                { name: '貼紙', price: 100 },
+                { name: '立體', price: 100 }
+            ],
             removal: { shop: 250, other: 300 }
         };
 
@@ -436,7 +441,10 @@
             
             document.getElementById('settingsArtList').innerHTML = settings.artPresets.map((art, idx) => `
                 <div class="flex items-center justify-between bg-white/50 p-4 rounded-2xl border border-morandi-200 shadow-sm">
-                    <span class="text-sm font-bold text-morandi-800">${art}</span>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-morandi-800">${art.name}</span>
+                        <span class="text-xs text-morandi-500">$${art.price}</span>
+                    </div>
                     <button onclick="removeSettingItem('art', ${idx})" class="w-10 h-10 flex items-center justify-center text-red-300 active:text-red-500 transition-colors">
                         <i class="fa-solid fa-circle-minus text-xl"></i>
                     </button>
@@ -473,8 +481,8 @@
             baseContainer.innerHTML = html;
 
             document.getElementById('quickOptionsBar').innerHTML = settings.artPresets.map(opt => {
-                const isSelected = state.artItems.some(i => i.name === opt);
-                return `<button onclick="addNewArtRow('${opt}', 100)" class="quick-addon-btn ${isSelected ? 'quick-addon-btn-selected' : ''}" ${isSelected ? 'disabled' : ''}>${opt}</button>`;
+                const isSelected = state.artItems.some(i => i.name === opt.name);
+                return `<button onclick="addNewArtRow('${opt.name}', ${opt.price})" class="quick-addon-btn ${isSelected ? 'quick-addon-btn-selected' : ''}" ${isSelected ? 'disabled' : ''}>${opt.name}</button>`;
             }).join('');
 
             renderArtList();
@@ -613,7 +621,7 @@
             } else {
                 const n = document.getElementById('newArtName').value;
                 if(!n) return;
-                settings.artPresets.push(n);
+                settings.artPresets.push({ name: n, price: 100 });
             }
             saveSettings(); renderSettingsUI(); renderMainUI();
             document.getElementById('newBaseName').value = ''; document.getElementById('newBasePrice').value = '';
@@ -658,7 +666,7 @@
         function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
 
         function copyToClipboard() {
-            let t = "✦ SOUVENIR ATELIER ✦\n";
+            let t = "✶ SOUVENIR ATELIER ✶\n\n";
             const base = settings.bases.find(b => b.id === state.selectedBaseId);
             if(base) t += `- ${base.name}: $${base.price}\n`;
             if(state.fixedAddons.repair > 0) t += `- 補甲 x${state.fixedAddons.repair}: +$${state.fixedAddons.repair * 50}\n`;
@@ -671,8 +679,17 @@
             const adj = parseInt(document.getElementById('adjustmentAmount').value) || 0;
             if(adj !== 0) t += `- 調整: ${adj}\n`;
             t += `────────────────\n總計：$${document.getElementById('displayTotal').innerText}`;
-            const area = document.createElement('textarea'); area.value = t; document.body.appendChild(area); area.select(); document.execCommand('copy'); document.body.removeChild(area);
-            const toast = document.getElementById('toast'); toast.style.opacity = '1'; setTimeout(() => toast.style.opacity = '0', 2500);
+            
+            const area = document.createElement('textarea'); 
+            area.value = t; 
+            document.body.appendChild(area); 
+            area.select(); 
+            document.execCommand('copy'); 
+            document.body.removeChild(area);
+            
+            const toast = document.getElementById('toast'); 
+            toast.style.opacity = '1'; 
+            setTimeout(() => toast.style.opacity = '0', 2500);
         }
     </script>
 </body>
